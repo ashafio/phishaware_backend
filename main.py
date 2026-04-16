@@ -8,8 +8,8 @@ import os
 # CONFIG PATHS
 # =========================
 
-DATA_PATH = "data/final_dataset.csv"
-MODEL_PATH = "model/phishawaremodel.pkl"
+DATA_PATH = "final_dataset.csv"
+MODEL_PATH = "phishawaremodel.pkl"
 
 # =========================
 # LOAD DATASET

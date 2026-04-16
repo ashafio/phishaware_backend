@@ -26,8 +26,9 @@ app.add_middleware(
 # GOOGLE DRIVE MODEL SETUP
 # =========================
 
-MODEL_DIR = os.path.join(os.path.dirname(__file__), "../model")
-MODEL_PATH = os.path.join(MODEL_DIR, "phishawaremodel.pkl")
+# MODEL_DIR = os.path.join(os.path.dirname(__file__), "../model")
+# MODEL_PATH = os.path.join(MODEL_DIR, "phishawaremodel.pkl")
+MODEL_PATH = os.path.join("phishawaremodel.pkl")
 
 # 🔴 PUT YOUR GOOGLE DRIVE DIRECT DOWNLOAD LINK HERE
 MODEL_URL = "https://drive.google.com/uc?id=1LCqWuVKJVznXOLWrrvEi-XerA_6KAEX0"
