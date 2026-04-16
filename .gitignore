@@ -1,0 +1,17 @@
+# ML models
+model/
+*.pkl
+*.joblib
+
+# datasets
+data/
+dataset/
+*.csv
+
+# Python cache
+__pycache__/
+*.pyc
+
+# env
+venv/
+.env
