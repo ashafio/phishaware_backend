@@ -1,11 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import joblib
 import numpy as np
-import os
 import time
-import requests
 from fastapi.middleware.cors import CORSMiddleware
+from model_loader import load_model
+
+# =========================
+# APP INIT
+# =========================
 
 app = FastAPI(
     title="PhishAware API",
@@ -23,45 +25,14 @@ app.add_middleware(
 )
 
 # =========================
-# GOOGLE DRIVE MODEL SETUP
+# LOAD MODEL (ONLY ONCE)
 # =========================
-
-# MODEL_DIR = os.path.join(os.path.dirname(__file__), "../model")
-# MODEL_PATH = os.path.join(MODEL_DIR, "phishawaremodel.pkl")
-MODEL_PATH = os.path.join("phishawaremodel.pkl")
-
-# 🔴 PUT YOUR GOOGLE DRIVE DIRECT DOWNLOAD LINK HERE
-MODEL_URL = "https://drive.google.com/uc?id=1LCqWuVKJVznXOLWrrvEi-XerA_6KAEX0"
-
-
-def download_model():
-    """Download model from Google Drive if not exists"""
-    if not os.path.exists(MODEL_PATH):
-        print("⬇ Downloading model from Google Drive...")
-
-        os.makedirs(MODEL_DIR, exist_ok=True)
-
-        response = requests.get(MODEL_URL)
-        if response.status_code != 200:
-            raise RuntimeError("❌ Failed to download model")
-
-        with open(MODEL_PATH, "wb") as f:
-            f.write(response.content)
-
-        print("✅ Model downloaded successfully")
-
-
-# Load model safely
-def load_model():
-    download_model()
-    return joblib.load(MODEL_PATH)
-
 
 model = load_model()
 print("✅ Model loaded successfully")
 
 # =========================
-# INPUT SCHEMA (UNCHANGED)
+# INPUT SCHEMA
 # =========================
 
 class URLFeatures(BaseModel):
