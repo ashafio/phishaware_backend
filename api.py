@@ -8,13 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from model_loader import load_model
 
 # =========================
-# APP INIT
+# INIT
 # =========================
 
 app = FastAPI(
     title="PhishAware API",
-    description="ML-based Phishing Detection System",
-    version="2.0"
+    version="3.0"
 )
 
 app.add_middleware(
@@ -29,11 +28,11 @@ app.add_middleware(
 # LOAD MODEL
 # =========================
 
-model = load_model()
-print("✅ Model loaded successfully")
+model, EXPECTED_FEATURES = load_model()
+
 
 # =========================
-# INPUT (Flutter sends ONLY URL)
+# INPUT
 # =========================
 
 class URLRequest(BaseModel):
@@ -41,7 +40,7 @@ class URLRequest(BaseModel):
 
 
 # =========================
-# 74-FEATURE GENERATOR
+# FEATURE GENERATOR (CONSISTENT)
 # =========================
 
 def extract_features(url: str):
@@ -53,76 +52,59 @@ def extract_features(url: str):
 
     features = []
 
-    # -------- BASIC --------
-    features.append(len(url))
-    features.append(len(hostname))
-    features.append(len(hostname))
-    features.append(len(path))
-    features.append(len(path.split("/")[1]) if len(path.split("/")) > 1 else 0)
-    features.append(len(hostname.split(".")[-1]) if "." in hostname else 0)
-    features.append(len(hostname.split(".")[-1]) if "." in hostname else 0)
-    features.append(len(path.split("/")))
-    features.append(len(query))
-    features.append(len(path.split("/")))
+    # BASIC
+    features.extend([
+        len(url),
+        len(hostname),
+        len(path),
+        len(query),
+        len(hostname.split(".")),
+        len(path.split("/")),
+    ])
 
-    # -------- CHAR COUNTS --------
-    features.append(sum(c.isdigit() for c in url))
-    features.append(sum(c.isalpha() for c in url))
-    features.append(len(re.findall(r'[^a-zA-Z0-9]', url)))
-    features.append(url.count("."))
-    features.append(url.count("-"))
-    features.append(url.count("@"))
-    features.append(url.count("%"))
-    features.append(url.count("="))
-    features.append(url.count("?"))
-    features.append(url.count("&"))
-    features.append(url.count("#"))
-    features.append(url.count("_"))
-    features.append(len(re.findall(r'[^a-zA-Z0-9]', url)))
-    features.append(url.count("/"))
-    features.append(len(query.split("&")) if query else 0)
+    # COUNTS
+    features.extend([
+        url.count("."),
+        url.count("-"),
+        url.count("@"),
+        url.count("?"),
+        url.count("&"),
+        url.count("="),
+        url.count("_"),
+        url.count("/"),
+    ])
 
-    # -------- ENTROPY (SAFE APPROX) --------
-    features.append(len(set(url)) / max(len(url), 1))
-    features.append(len(set(hostname)) / max(len(hostname), 1))
-    features.append(len(set(hostname)) / max(len(hostname), 1))
-    features.append(len(set(path)) / max(len(path), 1))
-    features.append(len(set(query)) / max(len(query), 1))
+    # CHARACTER FEATURES
+    features.extend([
+        sum(c.isdigit() for c in url),
+        sum(c.isalpha() for c in url),
+        len(re.findall(r'[^a-zA-Z0-9]', url)),
+    ])
 
-    # -------- RATIOS --------
-    features.append(sum(c.isdigit() for c in url) / max(len(url), 1))
-    features.append(sum(c.isalpha() for c in url) / max(len(url), 1))
-    features.append(len(re.findall(r'[^a-zA-Z0-9]', url)) / max(len(url), 1))
-    features.append(sum(c.isupper() for c in url) / max(len(url), 1))
-    features.append(sum(c.islower() for c in url) / max(len(url), 1))
+    # RATIOS
+    length = max(len(url), 1)
+    features.extend([
+        sum(c.isdigit() for c in url) / length,
+        sum(c.isalpha() for c in url) / length,
+    ])
 
-    # -------- SECURITY FLAGS --------
-    features.append(1 if re.match(r'\d+\.\d+\.\d+\.\d+', hostname) else 0)
-    features.append(1 if url.startswith("http://") else 0)
-    features.append(1 if any(t in hostname for t in ["xyz", "top", "click"]) else 0)
-    features.append(1 if "https" in url else 0)
-    features.append(1 if "www" in hostname else 0)
-    features.append(1 if "//" in path else 0)
-    features.append(1 if url.count("http://") > 1 else 0)
-    features.append(1 if ":" in hostname else 0)
-    features.append(1 if "%" in url else 0)
-    features.append(1 if "base64" in url else 0)
+    # FLAGS
+    features.extend([
+        1 if url.startswith("https") else 0,
+        1 if re.match(r'\d+\.\d+\.\d+\.\d+', hostname) else 0,
+        1 if "login" in url.lower() else 0,
+        1 if "secure" in url.lower() else 0,
+        1 if "verify" in url.lower() else 0,
+        1 if "account" in url.lower() else 0,
+    ])
 
-    # -------- SUSPICIOUS WORDS --------
-    features.append(1 if "login" in url.lower() else 0)
-    features.append(1 if "secure" in url.lower() else 0)
-    features.append(1 if "verify" in url.lower() else 0)
-    features.append(1 if "account" in url.lower() else 0)
-    features.append(1 if "update" in url.lower() else 0)
-    features.append(1 if "bank" in url.lower() else 0)
-    features.append(1 if "cloud" in url.lower() else 0)
-    features.append(1 if "paypal" in url.lower() else 0)
+    # 🚨 CRITICAL FIX (NO RANDOM PADDING)
+    if len(features) != EXPECTED_FEATURES:
+        raise ValueError(
+            f"Feature mismatch: expected {EXPECTED_FEATURES}, got {len(features)}"
+        )
 
-    # -------- PAD TO MATCH MODEL (CRITICAL FIX) --------
-    while len(features) < 74:
-        features.append(0)
-
-    return features[:74]
+    return features
 
 
 # =========================
@@ -139,7 +121,7 @@ def health():
 
 
 # =========================
-# MAIN PREDICT ENDPOINT (FLUTTER USES THIS)
+# PREDICT
 # =========================
 
 @app.post("/predicturl")
@@ -155,8 +137,9 @@ def predict_url(data: URLRequest):
         return {
             "url": data.url,
             "prediction": int(prediction),
-            "probability_phishing": float(probability[1]),
-            "probability_legitimate": float(probability[0]),
+            "confidence": float(max(probability)),
+            "phishing_probability": float(probability[1]),
+            "legitimate_probability": float(probability[0]),
             "response_time_ms": round((time.time() - start) * 1000, 2)
         }
 
