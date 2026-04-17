@@ -2,7 +2,7 @@ import os
 import gdown
 import joblib
 
-MODEL_PATH = "model/phishawaremodel.pkl"
+MODEL_PATH = "phishawaremodel.pkl"
 
 FILE_ID = "18HaDZ_K_GrV82NfQsVhGRbf4uFNn5Awl"
 MODEL_URL = f"https://drive.google.com/uc?id={FILE_ID}"

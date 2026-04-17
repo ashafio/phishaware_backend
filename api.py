@@ -50,20 +50,18 @@ def extract_features(url: str):
     path = parsed.path or ""
     query = parsed.query or ""
 
-    features = []
-
-    # BASIC
-    features.extend([
+    # -------- BASIC (6) --------
+    features = [
         len(url),
         len(hostname),
         len(path),
         len(query),
         len(hostname.split(".")),
         len(path.split("/")),
-    ])
+    ]
 
-    # COUNTS
-    features.extend([
+    # -------- COUNTS (8) --------
+    features += [
         url.count("."),
         url.count("-"),
         url.count("@"),
@@ -72,33 +70,30 @@ def extract_features(url: str):
         url.count("="),
         url.count("_"),
         url.count("/"),
-    ])
+    ]
 
-    # CHARACTER FEATURES
-    features.extend([
+    # -------- CHARACTER FEATURES (3) --------
+    features += [
         sum(c.isdigit() for c in url),
         sum(c.isalpha() for c in url),
         len(re.findall(r'[^a-zA-Z0-9]', url)),
-    ])
+    ]
 
-    # RATIOS
+    # -------- RATIOS (2) --------
     length = max(len(url), 1)
-    features.extend([
+    features += [
         sum(c.isdigit() for c in url) / length,
         sum(c.isalpha() for c in url) / length,
-    ])
+    ]
 
-    # FLAGS
-    features.extend([
+    # -------- FLAGS (3) --------
+    features += [
         1 if url.startswith("https") else 0,
         1 if re.match(r'\d+\.\d+\.\d+\.\d+', hostname) else 0,
         1 if "login" in url.lower() else 0,
-        1 if "secure" in url.lower() else 0,
-        1 if "verify" in url.lower() else 0,
-        1 if "account" in url.lower() else 0,
-    ])
+    ]
 
-    # 🚨 CRITICAL FIX (NO RANDOM PADDING)
+    # ✅ FINAL CHECK
     if len(features) != EXPECTED_FEATURES:
         raise ValueError(
             f"Feature mismatch: expected {EXPECTED_FEATURES}, got {len(features)}"
