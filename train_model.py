@@ -1,28 +1,28 @@
-# import pandas as pd
-# from sklearn.model_selection import train_test_split
-# from sklearn.ensemble import RandomForestClassifier
-# import joblib
+import pandas as pd
+import joblib
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 
-# # Load dataset
-# df = pd.read_csv("data/final_dataset.csv")
+FEATURE_COLUMNS = [
+    "url_length","hostname_length","path_length","query_length",
+    "path_segments_count","num_dots","num_hyphens","num_at",
+    "num_question","num_ampersand","num_equals","num_underscore",
+    "num_slash","num_digits","num_letters","num_special_chars",
+    "ratio_digits","ratio_letters","uses_https","is_ip_address",
+    "contains_login"
+]
 
-# # Drop non-numeric column
-# df = df.drop(columns=["url"])
+df = pd.read_csv("final_dataset.csv")
+df = df[FEATURE_COLUMNS + ["label"]].dropna()
 
-# # Features and label
-# X = df.drop(columns=["label"])
-# y = df["label"]
+X = df[FEATURE_COLUMNS]
+y = df["label"]
 
-# # Split
-# X_train, X_test, y_train, y_test = train_test_split(
-#     X, y, test_size=0.2, random_state=42
-# )
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-# # Train model
-# model = RandomForestClassifier(n_estimators=100)
-# model.fit(X_train, y_train)
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
 
-# # Save model (IMPORTANT: use joblib)
-# joblib.dump(model, "model/phishawaremodel.pkl")
+joblib.dump(model, "phishing_model.pkl")
 
-# print("✅ Model trained and saved successfully")
+print("✅ Model trained & saved")

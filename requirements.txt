@@ -1,7 +1,8 @@
 fastapi
 uvicorn
 numpy
+pandas
 scikit-learn
+sqlalchemy
 joblib
 gdown
-requests
