@@ -2,9 +2,8 @@ fastapi
 uvicorn
 pandas
 numpy
-scikit-learn==1.8.0
+scikit-learn
 lightgbm
 joblib
 python-dotenv
 gdown
-lightgbm==3.3.5
