@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from . import predict
+import predict
 from fastapi.middleware.cors import CORSMiddleware
 
 

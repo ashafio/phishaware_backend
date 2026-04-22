@@ -1,5 +1,5 @@
 import numpy as np
-from .feature_extractor import extract_features
+from feature_extractor import extract_features
 
 def predict_url(model, url: str):
     # Get the list of 22 features
