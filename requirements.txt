@@ -7,3 +7,4 @@ lightgbm
 joblib
 python-dotenv
 gdown
+lightgbm==3.3.5
