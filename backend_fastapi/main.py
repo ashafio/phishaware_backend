@@ -1,7 +1,7 @@
 from fastapi import FastAPI
+from . import predict
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import predict
 
 app = FastAPI(
     title="LinkBox ML API",

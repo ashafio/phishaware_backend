@@ -6,7 +6,7 @@ import sys
 # Path fix to see 'app' folder
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(current_dir, "..")))
-from app.services.feature_extractor import extract_features
+from feature_extractor import extract_features
 
 # 1. Load Data
 df_phish = pd.read_csv(os.path.join(current_dir, "final_dataset.csv"))
