@@ -5,7 +5,7 @@ import gdown
 MODEL_DIR = "model"
 MODEL_PATH = os.path.join(MODEL_DIR, "phishing_model.pkl")
 
-FILE_ID = "1BFVKKNMhqo_EGEymA09bxe2Cyecq57-e"
+FILE_ID = "1Ps8gpq4i4lVdoLbKDCZvVrx_OcuHF1U7"
 
 MODEL_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
